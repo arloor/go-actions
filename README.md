@@ -7,6 +7,6 @@
 
 - `var xxx SomeStruct` 会初始化 struct 的各个 field 为默认空值 ( 0,false,"" )
 - `var xxx []string` 会初始化成nil
-- `var xxx []string{}` 会初始化成0个元素但不为nil的切片
+- `xxx := []string{}` 会初始化成0个元素但不为nil的切片
 - `var xxx map[string]string` 会初始化成nil
-- `var xxx map[string]string{}` 会初始化成0个元素但不为nil的map
+- `xxx := map[string]string{}` 会初始化成0个元素但不为nil的map

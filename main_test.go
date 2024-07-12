@@ -36,11 +36,10 @@ func TestMap(t *testing.T) {
 // 但是看到一些说并发读写string导致panic的情况，后续再研究
 func TestString(t *testing.T) {
 	string0 := "0"
-	string1:=string0
-	string0="1"
+	string1 := string0
+	string0 = "1"
 	assert.NotEqual(t, string0, string1)
 }
-
 
 type Some struct {
 	field int
@@ -56,4 +55,39 @@ func TestStruct(t *testing.T) {
 	some0.field = 2
 	assert.NotEqual(t, some0.field, some1.field)
 	assert.Equal(t, some0.field, some0_pointer.field)
+}
+
+// channel是引用传递
+func TestChannel(t *testing.T) {
+	ch0 := make(chan int, 1) // 创建一个缓冲大小为1的通道
+	ch1 := ch0               // 将ch0赋值给ch1
+
+	ch0 <- 1      // 向通道ch0发送值1
+	val0 := <-ch0 // 从通道ch0接收值
+	assert.Equal(t, val0, 1)
+
+	ch1 <- 2      // 向通道ch1发送值2
+	val1 := <-ch0 // 从通道ch0接收值（因为ch0和ch1是同一个通道）
+	assert.Equal(t, val1, 2)
+}
+
+// 数值类型、bool类型是值拷贝
+func TestNumber(t *testing.T) {
+	a := 0
+	b := a
+	a = 1
+	assert.NotEqual(t, a, b)
+
+	a_pointer := &a
+	a = 3
+	assert.Equal(t, a, *a_pointer)
+}
+
+// func类型是引用传递
+func TestFunc(t *testing.T) {
+	a := func() {}
+	var _ = a
+	a = func() {}
+
+	// 此时a和_都是第二个func() {}
 }

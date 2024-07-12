@@ -84,10 +84,11 @@ func TestNumber(t *testing.T) {
 }
 
 // func类型是引用传递
+// 但是！！！不共享值，反直觉，不太懂
 func TestFunc(t *testing.T) {
-	a := func() {}
-	var _ = a
-	a = func() {}
+	a := func() int { return 0 }
+	b := a
+	a = func() int { return 1 }
 
-	// 此时a和_都是第二个func() {}
+	assert.NotEqual(t, a(), b())
 }

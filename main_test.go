@@ -15,6 +15,40 @@ func TestArray(t *testing.T) {
 
 }
 
+// struct赋值是值拷贝（value copy）
+// 通过struct的指针可以访问和修改指针所指向的结构体的字段（用途，函数中传递struct指针以修改struct内容）
+// 如果不需要修改struct内容，并且struct的大小不大（拷贝成本不大），则函数参数直接传struct可以避免“逃逸”，对gc更加友好
+func TestStruct(t *testing.T) {
+	some0 := Some{1}
+	some1 := some0
+	some0_pointer := &some0
+	some0.field = 2
+	assert.NotEqual(t, some0.field, some1.field)
+	assert.Equal(t, some0.field, some0_pointer.field)
+}
+
+// string字符串赋值是值拷贝（value copy）
+// golang的string是不可变类型
+// 但是看到一些说并发读写string导致panic的情况，后续再研究
+func TestString(t *testing.T) {
+	string0 := "0"
+	string1 := string0
+	string0 = "1"
+	assert.NotEqual(t, string0, string1)
+}
+
+// 数值类型、bool类型是值拷贝
+func TestNumber(t *testing.T) {
+	a := 0
+	b := a
+	a = 1
+	assert.NotEqual(t, a, b)
+
+	a_pointer := &a
+	a = 3
+	assert.Equal(t, a, *a_pointer)
+}
+
 // 切片赋值是引用传递（reference assignment）
 func TestSlice(t *testing.T) {
 	slice := []int{1}
@@ -31,30 +65,8 @@ func TestMap(t *testing.T) {
 	assert.Equal(t, map0[0], map1[0])
 }
 
-// string字符串赋值是值拷贝（value copy）
-// golang的string是不可变类型
-// 但是看到一些说并发读写string导致panic的情况，后续再研究
-func TestString(t *testing.T) {
-	string0 := "0"
-	string1 := string0
-	string0 = "1"
-	assert.NotEqual(t, string0, string1)
-}
-
 type Some struct {
 	field int
-}
-
-// struct赋值是值拷贝（value copy）
-// 通过struct的指针可以访问和修改指针所指向的结构体的字段（用途，函数中传递struct指针以修改struct内容）
-// 如果不需要修改struct内容，并且struct的大小不大（拷贝成本不大），则函数参数直接传struct可以避免“逃逸”，对gc更加友好
-func TestStruct(t *testing.T) {
-	some0 := Some{1}
-	some1 := some0
-	some0_pointer := &some0
-	some0.field = 2
-	assert.NotEqual(t, some0.field, some1.field)
-	assert.Equal(t, some0.field, some0_pointer.field)
 }
 
 // channel是引用传递
@@ -71,18 +83,6 @@ func TestChannel(t *testing.T) {
 	assert.Equal(t, val1, 2)
 }
 
-// 数值类型、bool类型是值拷贝
-func TestNumber(t *testing.T) {
-	a := 0
-	b := a
-	a = 1
-	assert.NotEqual(t, a, b)
-
-	a_pointer := &a
-	a = 3
-	assert.Equal(t, a, *a_pointer)
-}
-
 // func类型是引用传递
 // 但是！！！不共享值，反直觉，不太懂
 func TestFunc(t *testing.T) {
@@ -91,4 +91,24 @@ func TestFunc(t *testing.T) {
 	a = func() int { return 1 }
 
 	assert.NotEqual(t, a(), b())
+}
+
+// 以结构体的指针作为参数，修改会对原来的生效
+func (some *Some) incrementPointer() {
+	some.field++
+}
+
+// 以结构体为参数，结构体拷贝了一份再做修改，对原来的结构体不生效。
+// 不出意料的话，vscode的go插件会使用golangci-lint把这个标黄
+func (some Some) increment() {
+	some.field++
+}
+
+func TestPointerFunc(t *testing.T){
+	some := Some{1}
+	some.increment()
+	assert.Equal(t, some.field, 1)
+
+	some.incrementPointer()
+	assert.Equal(t, some.field, 2)
 }

@@ -1,4 +1,4 @@
-module github.com/arloor/go-data-type
+module github.com/arloor/go-actions
 
 go 1.21.11
 

@@ -104,7 +104,7 @@ func (some Some) increment() {
 	some.field++
 }
 
-func TestPointerFunc(t *testing.T){
+func TestPointerFunc(t *testing.T) {
 	some := Some{1}
 	some.increment()
 	assert.Equal(t, some.field, 1)

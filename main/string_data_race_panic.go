@@ -3,7 +3,7 @@ package main
 // go run main/string_data_race_panic.go
 
 import (
-	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func main() {
 }
 
 func request(c string) { // 这里传参，有一次拷贝，会做feild（string的poiner和len）的赋值
-	_, _ = json.Marshal(c)
-	// 或者下面的读取，也会panic
-	// println(fmt.Sprintf("fullPath: %s", c))
+	fmt.Printf("fullPath: %s\n", c)
+	// 或者下面的json Marshal，也会panic
+	// _, _ = json.Marshal(c)
 }
